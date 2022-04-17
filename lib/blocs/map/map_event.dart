@@ -11,3 +11,12 @@ class OnMapInitializedEvent extends MapEvent{
   final GoogleMapController controller;
   const OnMapInitializedEvent(this.controller);
 }
+
+
+class OnStartFollowingUserMapEvent extends MapEvent {}
+class OnStopFollowingUserMapEvent extends MapEvent {}
+class UpdateUserPolylineEvent extends MapEvent {
+  final List<LatLng> userLocations;
+  const UpdateUserPolylineEvent( this.userLocations );
+}
+class OnToggleUserRoute extends MapEvent {}

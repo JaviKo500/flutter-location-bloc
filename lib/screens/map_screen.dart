@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_maps/blocs/blocs.dart';
 import 'package:app_maps/views/views.dart';
 import 'package:app_maps/widgets/widgets.dart';
-
-
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -17,11 +16,12 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   late LocationBloc locationBloc;
   @override
-  void initState() {    
+  void initState() {
     super.initState();
     locationBloc = BlocProvider.of<LocationBloc>(context);
     locationBloc.startFollowingUser();
   }
+
   @override
   void dispose() {
     locationBloc.stopFollowingUser();
@@ -32,30 +32,45 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocBuilder<LocationBloc, LocationState>(
-        builder:  (context, state) {
-          if ( state.lastKnownLocation == null) {
+        builder: (context, locationState) {
+          if (locationState.lastKnownLocation == null) {
             return const Center(
-              child: Text( 'Await please' ),
+              child: Text('Await please'),
             );
           }
 
-          return SingleChildScrollView(
-            child: Stack(
-              children: [
-                MapView( initialLocation:  state.lastKnownLocation!, )
-                // TODO: Buttons ..
-              ],
-            ),
+          return BlocBuilder<MapBloc, MapState>(
+            builder: (context, mapState) {
+
+              Map<String, Polyline> polylines = Map.from( mapState.polylines );
+              if ( !mapState.showMyRoute ) {
+                polylines.removeWhere((key, value) => key == 'myRoute');
+              }
+
+              return SingleChildScrollView(
+                child: Stack(
+                  children: [
+                    MapView(
+                      initialLocation: locationState.lastKnownLocation!,
+                      polylines: mapState.polylines.values.toSet(),
+                    )
+                    // TODO: Buttons ..
+                  ],
+                ),
+              );
+            },
           );
         },
       ),
-      floatingActionButtonLocation:  FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: const [
-          BtnCurrentLocation()
+          BtnToggleUserRoute(),
+          BtnFollowUser(),
+          BtnCurrentLocation(),
         ],
       ),
-   );
+    );
   }
 }
