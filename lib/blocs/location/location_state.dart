@@ -5,9 +5,7 @@ class LocationState extends Equatable {
   final bool followingUser;
   final LatLng? lastKnownLocation;
   final List<LatLng> myLocationHistory;
-  // TODO: 
-  // last geolocation
-  // history
+
 
   const LocationState({
     this.followingUser = false,
